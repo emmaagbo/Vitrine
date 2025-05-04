@@ -1,0 +1,32 @@
+:root {
+    --neon-color: #0aefff;
+    --neon-shadow: 0 0 10px #0aefff, 0 0 20px #0aefff;
+  }
+  
+  .text-neon {
+    color: var(--neon-color);
+    text-shadow: var(--neon-shadow);
+  }
+  
+  .border-neon {
+    border-color: var(--neon-color);
+    box-shadow: var(--neon-shadow);
+  }
+  
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0px); }
+  }
+  
+  .transition-transform {
+    transition: transform 0.3s ease;
+  }
+  
+  .hover-scale:hover {
+    transform: scale(1.05);
+  }
