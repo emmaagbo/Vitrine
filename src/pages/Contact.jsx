@@ -1,47 +1,99 @@
 import { useState } from 'react';
 import { Mail, Github, Linkedin, Send } from 'lucide-react';
-import emailjs from 'emailjs-com';
+// Pour utiliser EmailJS, importez la bibliothèque
+// Installez avec: npm install @emailjs/browser
+import emailjs from '@emailjs/browser';
 
 function Contact() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  // États pour gérer le formulaire
+  const [name, setName] = useState(""); // Nom de l'utilisateur
+  const [email, setEmail] = useState(""); // Email de l'utilisateur
+  const [message, setMessage] = useState(""); // Message de l'utilisateur
+  const [submitted, setSubmitted] = useState(false); // État de soumission réussie
+  const [error, setError] = useState(""); // Message d'erreur
+  const [loading, setLoading] = useState(false); // État de chargement
 
-  const handleSubmit = (e) => {
+  // Fonction pour valider le format de l'email
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (name && email && message) {
+    // Réinitialisation des états
+    setError("");
+    
+    // Validation des champs
+    if (!name) {
+      setError("Veuillez entrer votre nom");
+      return;
+    }
+    
+    if (!email) {
+      setError("Veuillez entrer votre email");
+      return;
+    }
+    
+    if (!validateEmail(email)) {
+      setError("Veuillez entrer un email valide");
+      return;
+    }
+    
+    if (!message) {
+      setError("Veuillez entrer votre message");
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      // Préparation des données pour EmailJS
       const templateParams = {
         name,
         email,
         message
       };
 
+      // IMPORTANT: Ces valeurs doivent être définies dans des variables d'environnement
+      // dans un fichier .env à la racine du projet:
+      // REACT_APP_EMAILJS_SERVICE_ID=votre_service_id
+      // REACT_APP_EMAILJS_TEMPLATE_ID=votre_template_id
+      // REACT_APP_EMAILJS_PUBLIC_KEY=votre_clé_publique
+      
       // Envoi de l'email via EmailJS
-      emailjs.send('service_0ukuxpj', 'template_enijtna', templateParams, 'd16yHooH7icAj4TRo')
-        .then((response) => {
-          console.log('SUCCESS!', response.status, response.text);
-          setSubmitted(true);
-          setName("");
-          setEmail("");
-          setMessage("");
-
-          // Réinitialiser l'état après 3 secondes
-          setTimeout(() => {
-            setSubmitted(false);
-          }, 3000);
-        })
-        .catch((err) => {
-          console.error('Failed to send email:', err);
-        });
+      const response = await emailjs.send(
+        import.meta.env.REACT_APP_EMAILJS_SERVICE_ID || 'service_1iprooc', 
+        import.meta.env.REACT_APP_EMAILJS_TEMPLATE_ID || 'template_enijtna', 
+        templateParams, 
+        import.meta.env.REACT_APP_EMAILJS_PUBLIC_KEY || 'votre_clé_publique'
+      );
+      
+      console.log('Succès!', response.status, response.text);
+      
+      // Succès
+      setSubmitted(true);
+      setName("");
+      setEmail("");
+      setMessage("");
+      
+      // Réinitialisation de l'état après 5 secondes
+      setTimeout(() => {
+        setSubmitted(false);
+      }, 5000);
+    } catch (err) {
+      console.error('Échec de l\'envoi de l\'email:', err);
+      setError("Une erreur est survenue. Veuillez réessayer plus tard.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <section id="contact" className="py-24 min-h-screen bg-gray-800 flex items-center">
       <div className="container mx-auto px-6">
-        <h2 className="text-4xl font-bold text-white mb-4 text-center">Me <span className="text-neon">contacter</span></h2>
+        <h2 className="text-4xl font-bold text-white mb-4 text-center">Me <span className="text-blue-500">contacter</span></h2>
         <p className="text-xl text-gray-400 mb-12 text-center max-w-3xl mx-auto">
           Vous avez un projet en tête ? N'hésitez pas à me contacter pour discuter de vos idées
         </p>
@@ -54,7 +106,13 @@ function Contact() {
                   <p>Merci pour votre message ! Je vous répondrai très bientôt.</p>
                 </div>
               ) : (
-                <>
+                <div className="space-y-6">
+                  {error && (
+                    <div className="bg-red-500 bg-opacity-20 border border-red-500 text-red-400 p-4 rounded-lg">
+                      {error}
+                    </div>
+                  )}
+                  
                   <div>
                     <label htmlFor="name" className="block text-white mb-2">Nom</label>
                     <input
@@ -93,12 +151,25 @@ function Contact() {
                   
                   <div
                     onClick={handleSubmit}
-                    className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors flex justify-center items-center cursor-pointer"
+                    className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors flex justify-center items-center cursor-pointer disabled:bg-blue-800 disabled:opacity-70"
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        handleSubmit(e);
+                      }
+                    }}
                   >
-                    <span>Envoyer le message</span>
-                    <Send className="ml-2" size={18} />
+                    {loading ? (
+                      <span>Envoi en cours...</span>
+                    ) : (
+                      <>
+                        <span>Envoyer le message</span>
+                        <Send className="ml-2" size={18} />
+                      </>
+                    )}
                   </div>
-                </>
+                </div>
               )}
             </div>
           </div>
@@ -109,26 +180,32 @@ function Contact() {
               
               <div className="space-y-6">
                 <div className="flex items-start">
-                  <Mail className="text-neon mr-4 mt-1" size={24} />
+                  <Mail className="text-blue-500 mr-4 mt-1" size={24} />
                   <div>
                     <h4 className="text-lg font-medium text-white">Email</h4>
-                    <p className="text-gray-400">contact@emmanuel-dev.com</p>
+                    <a href="mailto:mahoukpegoemmanuel@gmail.com" className="text-gray-400 hover:text-blue-500 transition-colors">
+                      contact@emmanuel-dev.com
+                    </a>
                   </div>
                 </div>
                 
                 <div className="flex items-start">
-                  <Github className="text-neon mr-4 mt-1" size={24} />
+                  <Github className="text-blue-500 mr-4 mt-1" size={24} />
                   <div>
                     <h4 className="text-lg font-medium text-white">GitHub</h4>
-                    <p className="text-gray-400">github.com/emmanuel-dev</p>
+                    <a href="https://github.com/emmaagbo" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-500 transition-colors">
+                      github.com/emmanuel-dev
+                    </a>
                   </div>
                 </div>
                 
                 <div className="flex items-start">
-                  <Linkedin className="text-neon mr-4 mt-1" size={24} />
+                  <Linkedin className="text-blue-500 mr-4 mt-1" size={24} />
                   <div>
                     <h4 className="text-lg font-medium text-white">LinkedIn</h4>
-                    <p className="text-gray-400">linkedin.com/in/emmanuel-dev</p>
+                    <a href="https://www.linkedin.com/in/emmanuel-mahoukp%C3%A9go-agbotoedo-50a6bb351" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-500 transition-colors">
+                      linkedin.com/in/emmanuel-dev
+                    </a>
                   </div>
                 </div>
               </div>
@@ -136,10 +213,22 @@ function Contact() {
               <div className="mt-8 pt-8 border-t border-gray-600">
                 <h4 className="text-lg font-medium text-white mb-4">Retrouvez-moi sur</h4>
                 <div className="flex gap-4">
-                  <a href="#" className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors">
+                  <a 
+                    href="https://github.com/emmaagbo" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors"
+                    aria-label="GitHub"
+                  >
                     <Github size={24} className="text-white" />
                   </a>
-                  <a href="#" className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors">
+                  <a 
+                    href="https://www.linkedin.com/in/emmanuel-mahoukp%C3%A9go-agbotoedo-50a6bb351" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors"
+                    aria-label="LinkedIn"
+                  >
                     <Linkedin size={24} className="text-white" />
                   </a>
                 </div>

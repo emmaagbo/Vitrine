@@ -14,8 +14,8 @@ function Footer() {
   // Liens vers les réseaux sociaux
   const socialLinks = [
     { id: "github", label: "GitHub", icon: Github, url: "https://github.com/emmaagbo" },
-    { id: "linkedin", label: "LinkedIn", icon: Linkedin, url: "https://linkedin.com/" },
-    { id: "twitter", label: "Twitter", icon: Twitter, url: "https://twitter.com/" },
+    { id: "linkedin", label: "LinkedIn", icon: Linkedin, url: "https://www.linkedin.com/in/emmanuel-mahoukp%C3%A9go-agbotoedo-50a6bb351" },
+    { id: "twitter", label: "Twitter", icon: Twitter, url: "https://www.twitter.com/EAgbotoedo" },
     { id: "email", label: "Email", icon: Mail, url: "mailto:mahoukpegoemmanuel@gmail.com" }
   ];
   
@@ -97,12 +97,12 @@ function Footer() {
             <address className="not-italic">
               <p className="mb-2">Porto-Novo, Bénin</p>
               <p className="mb-2">
-                <a href="mailto:contact@exemple.com" className="text-gray-400 hover:text-white transition-colors duration-200">
+                <a href="mailto:mahoukpegoemmanuel@gmail.com" className="text-gray-400 hover:text-white transition-colors duration-200">
                   mahoukpegoemmanuel@gmail.com
                 </a>
               </p>
               <p>
-                <a href="tel:+33612345678" className="text-gray-400 hover:text-white transition-colors duration-200">
+                <a href="tel:+2290191732432" className="text-gray-400 hover:text-white transition-colors duration-200">
                   +229 01 91 73 24 32
                 </a>
               </p>
