@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Mail, Github, Linkedin, Send } from 'lucide-react';
+import emailjs from 'emailjs-com';
 
 function Contact() {
   const [name, setName] = useState("");
@@ -7,19 +8,33 @@ function Contact() {
   const [message, setMessage] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = () => {
-    // Ici, nous simulons juste un envoi réussi
-    // Dans un vrai site, vous ajouteriez la logique d'envoi d'email
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
     if (name && email && message) {
-      setSubmitted(true);
-      setName("");
-      setEmail("");
-      setMessage("");
-      
-      // Réinitialiser l'état après 3 secondes
-      setTimeout(() => {
-        setSubmitted(false);
-      }, 3000);
+      const templateParams = {
+        name,
+        email,
+        message
+      };
+
+      // Envoi de l'email via EmailJS
+      emailjs.send('service_0ukuxpj', 'template_enijtna', templateParams, 'd16yHooH7icAj4TRo')
+        .then((response) => {
+          console.log('SUCCESS!', response.status, response.text);
+          setSubmitted(true);
+          setName("");
+          setEmail("");
+          setMessage("");
+
+          // Réinitialiser l'état après 3 secondes
+          setTimeout(() => {
+            setSubmitted(false);
+          }, 3000);
+        })
+        .catch((err) => {
+          console.error('Failed to send email:', err);
+        });
     }
   };
 
@@ -30,7 +45,7 @@ function Contact() {
         <p className="text-xl text-gray-400 mb-12 text-center max-w-3xl mx-auto">
           Vous avez un projet en tête ? N'hésitez pas à me contacter pour discuter de vos idées
         </p>
-        
+
         <div className="flex flex-col md:flex-row gap-12">
           <div className="w-full md:w-1/2">
             <div className="space-y-6">
@@ -42,9 +57,9 @@ function Contact() {
                 <>
                   <div>
                     <label htmlFor="name" className="block text-white mb-2">Nom</label>
-                    <input 
-                      type="text" 
-                      id="name" 
+                    <input
+                      type="text"
+                      id="name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       className="w-full bg-gray-700 text-white p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -54,8 +69,8 @@ function Contact() {
                   
                   <div>
                     <label htmlFor="email" className="block text-white mb-2">Email</label>
-                    <input 
-                      type="email" 
+                    <input
+                      type="email"
                       id="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -66,8 +81,8 @@ function Contact() {
                   
                   <div>
                     <label htmlFor="message" className="block text-white mb-2">Message</label>
-                    <textarea 
-                      id="message" 
+                    <textarea
+                      id="message"
                       rows="5"
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
@@ -76,7 +91,7 @@ function Contact() {
                     ></textarea>
                   </div>
                   
-                  <div 
+                  <div
                     onClick={handleSubmit}
                     className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors flex justify-center items-center cursor-pointer"
                   >
